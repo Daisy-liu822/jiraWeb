@@ -16,6 +16,22 @@ if 'jira_config' not in st.session_state:
         'field_id': ''
     }
 
+# 配置更新函数
+def update_base_url():
+    st.session_state.jira_config['base_url'] = st.session_state.base_url_input
+
+def update_api_token():
+    st.session_state.jira_config['api_token'] = st.session_state.api_token_input
+
+def update_email():
+    st.session_state.jira_config['email'] = st.session_state.email_input
+
+def update_filter_id():
+    st.session_state.jira_config['filter_id'] = st.session_state.filter_id_input
+
+def update_field_id():
+    st.session_state.jira_config['field_id'] = st.session_state.field_id_input
+
 # 配置保存函数
 def save_config():
     st.session_state.jira_config = {
@@ -38,6 +54,14 @@ def reset_config():
     }
     st.success("🔄 配置已重置为默认值！")
 
+# 强制更新输入框值
+def force_update_inputs():
+    st.session_state.base_url_input = st.session_state.jira_config['base_url']
+    st.session_state.api_token_input = st.session_state.jira_config['api_token']
+    st.session_state.email_input = st.session_state.jira_config['email']
+    st.session_state.filter_id_input = st.session_state.jira_config['filter_id']
+    st.session_state.field_id_input = st.session_state.jira_config['field_id']
+
 st.title("📊 Jira Affects Project 提取工具")
 st.markdown("输入你的配置并点击按钮，即可一键提取影响的项目列表并下载。")
 
@@ -45,11 +69,15 @@ st.markdown("输入你的配置并点击按钮，即可一键提取影响的项�
 with st.sidebar:
     st.header("⚙️ 配置设置")
     
+    # 强制更新输入框值
+    force_update_inputs()
+    
     # 使用session state的值作为默认值，并确保key一致
     base_url = st.text_input(
         "🌐 Jira 实例 URL", 
         value=st.session_state.jira_config['base_url'],
-        key="base_url_input"
+        key="base_url_input",
+        on_change=update_base_url
     )
     
     api_token = st.text_area(
@@ -57,19 +85,22 @@ with st.sidebar:
         value=st.session_state.jira_config['api_token'],
         height=100, 
         help="从Atlassian账户设置中获取API Token",
-        key="api_token_input"
+        key="api_token_input",
+        on_change=update_api_token
     )
     
     email = st.text_input(
         "📧 Jira 邮箱", 
         value=st.session_state.jira_config['email'],
-        key="email_input"
+        key="email_input",
+        on_change=update_email
     )
     
     filter_id = st.text_input(
         "🔍 过滤器 ID", 
         value=st.session_state.jira_config['filter_id'],
-        key="filter_id_input"
+        key="filter_id_input",
+        on_change=update_filter_id
     )
     
     # 字段ID输入，支持自动检测和手动输入
@@ -78,7 +109,8 @@ with st.sidebar:
         "字段ID", 
         value=st.session_state.jira_config['field_id'],
         help="留空可自动检测，或手动输入",
-        key="field_id_input"
+        key="field_id_input",
+        on_change=update_field_id
     )
     
     # 配置管理按钮
