@@ -6,20 +6,92 @@ from jira_extractor import JiraExtractor
 
 st.set_page_config(page_title="Jira Affects Project 提取工具", layout="wide")
 
+# 初始化session state
+if 'jira_config' not in st.session_state:
+    st.session_state.jira_config = {
+        'base_url': 'https://qima.atlassian.net',
+        'api_token': 'your_api_token_here',
+        'email': 'daisy.liu@qima.com',
+        'filter_id': '20334',
+        'field_id': ''
+    }
+
+# 配置保存函数
+def save_config():
+    st.session_state.jira_config = {
+        'base_url': st.session_state.base_url_input,
+        'api_token': st.session_state.api_token_input,
+        'email': st.session_state.email_input,
+        'filter_id': st.session_state.filter_id_input,
+        'field_id': st.session_state.field_id_input
+    }
+    st.success("✅ 配置已保存！刷新页面后配置将保持不变。")
+
+# 配置重置函数
+def reset_config():
+    st.session_state.jira_config = {
+        'base_url': 'https://qima.atlassian.net',
+        'api_token': 'your_api_token_here',
+        'email': 'daisy.liu@qima.com',
+        'filter_id': '20334',
+        'field_id': ''
+    }
+    st.success("🔄 配置已重置为默认值！")
+
 st.title("📊 Jira Affects Project 提取工具")
 st.markdown("输入你的配置并点击按钮，即可一键提取影响的项目列表并下载。")
 
 # 侧边栏配置
 with st.sidebar:
     st.header("⚙️ 配置设置")
-    base_url = st.text_input("🌐 Jira 实例 URL", value="https://qima.atlassian.net")
-    api_token = st.text_area("🔐 API Token", value="your_api_token_here", height=100, help="从Atlassian账户设置中获取API Token")
-    email = st.text_input("📧 Jira 邮箱", value="daisy.liu@qima.com")
-    filter_id = st.text_input("🔍 过滤器 ID", value="20334")
+    
+    # 使用session state的值作为默认值
+    base_url = st.text_input(
+        "🌐 Jira 实例 URL", 
+        value=st.session_state.jira_config['base_url'],
+        key="base_url_input"
+    )
+    
+    api_token = st.text_area(
+        "🔐 API Token", 
+        value=st.session_state.jira_config['api_token'],
+        height=100, 
+        help="从Atlassian账户设置中获取API Token",
+        key="api_token_input"
+    )
+    
+    email = st.text_input(
+        "📧 Jira 邮箱", 
+        value=st.session_state.jira_config['email'],
+        key="email_input"
+    )
+    
+    filter_id = st.text_input(
+        "🔍 过滤器 ID", 
+        value=st.session_state.jira_config['filter_id'],
+        key="filter_id_input"
+    )
     
     # 字段ID输入，支持自动检测和手动输入
     st.subheader("🏷️ Affects Project 字段 ID")
-    field_id = st.text_input("字段ID", value="", help="留空可自动检测，或手动输入")
+    field_id = st.text_input(
+        "字段ID", 
+        value=st.session_state.jira_config['field_id'],
+        help="留空可自动检测，或手动输入",
+        key="field_id_input"
+    )
+    
+    # 配置管理按钮
+    st.subheader("💾 配置管理")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("💾 保存配置", key="save_config", use_container_width=True):
+            save_config()
+    
+    with col2:
+        if st.button("🔄 重置配置", key="reset_config", use_container_width=True):
+            reset_config()
     
     # 显示当前检测到的字段ID
     if 'detected_field_id' in st.session_state:
@@ -33,7 +105,7 @@ st.header("🚀 操作面板")
 # 步骤指示器
 st.markdown("""
 ### 📋 使用步骤：
-1. **🔧 配置信息** (左侧边栏)
+1. **🔧 配置信息** (左侧边栏) - 配置会自动保存
 2. **🔍 检测字段ID** (下方按钮)
 3. **🚀 提取数据** (检测成功后)
 """)
@@ -58,6 +130,8 @@ if auto_detect_button:
                 if detected_field_id:
                     st.success(f"✅ 成功识别字段: `{detected_field_id}`")
                     st.session_state.detected_field_id = detected_field_id
+                    # 自动保存到配置中
+                    st.session_state.jira_config['field_id'] = detected_field_id
                     st.rerun()  # 刷新页面以更新UI
                 else:
                     st.warning("⚠️ 未自动识别字段 ID，请手动输入。")
@@ -182,6 +256,13 @@ with st.expander("📖 详细使用说明"):
     - **项目去重**: 自动去除重复项目
     - **列表展示**: 一行一个项目，方便复制
     - **一键复制**: 支持复制到剪贴板
+    - **配置持久化**: 刷新页面后配置保持不变
+    
+    ### 💾 配置管理：
+    - **自动保存**: 输入后配置自动保存到会话中
+    - **手动保存**: 点击"保存配置"按钮
+    - **重置配置**: 点击"重置配置"恢复默认值
+    - **持久化**: 在同一会话中配置不会丢失
     """)
 
 # 状态信息
@@ -189,3 +270,7 @@ if 'detected_field_id' in st.session_state:
     st.info(f"🔍 当前检测到的字段ID: {st.session_state.detected_field_id}")
     if not field_id:
         st.warning("⚠️ 请在上方输入框中确认字段ID，或直接使用检测到的ID")
+
+# 显示当前配置状态
+with st.expander("🔧 当前配置状态"):
+    st.json(st.session_state.jira_config)
