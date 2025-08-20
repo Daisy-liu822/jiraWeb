@@ -1,0 +1,8 @@
+v: 0
+micros:
+  - name: jira-web-app
+    src: .
+    engine: python3.9
+    primary: true
+    public: true
+    run: streamlit run web_app.py --server.port 8080 --server.address 0.0.0.0 
