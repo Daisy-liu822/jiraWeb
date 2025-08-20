@@ -126,12 +126,28 @@ class JiraExtractor:
         json_path = os.path.join(results_dir, f"{prefix}.json")
         csv_path = os.path.join(results_dir, f"{prefix}.csv")
         
+        # 保存JSON文件
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
         
+        # 准备CSV数据，确保列名匹配
+        csv_data = []
+        for result in results:
+            csv_row = {
+                'issue_key': result.get('issue_key', ''),
+                'summary': result.get('summary', ''),
+                'status': result.get('status', ''),
+                'affects_projects_raw': result.get('affects_projects_raw', ''),
+                'affects_projects_count': len(result.get('affects_projects', []))
+            }
+            csv_data.append(csv_row)
+        
+        # 保存CSV文件
         with open(csv_path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=["issue_key", "summary", "status", "affects_projects_raw"])
-            writer.writeheader()
-            writer.writerows(results)
+            if csv_data:
+                fieldnames = list(csv_data[0].keys())
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(csv_data)
         
         return json_path, csv_path
