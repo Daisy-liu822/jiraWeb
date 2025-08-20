@@ -2,65 +2,86 @@
 import streamlit as st
 import os
 import pandas as pd
+import json
 from jira_extractor import JiraExtractor
 
 st.set_page_config(page_title="Jira Affects Project 提取工具", layout="wide")
 
-# 初始化session state
+# 配置文件路径
+CONFIG_FILE = "jira_config.json"
+
+# 默认配置
+DEFAULT_CONFIG = {
+    'base_url': 'https://qima.atlassian.net',
+    'api_token': 'your_api_token_here',
+    'email': 'daisy.liu@qima.com',
+    'filter_id': '20334',
+    'field_id': ''
+}
+
+# 加载配置函数
+def load_config():
+    try:
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                # 确保所有必需的键都存在
+                for key in DEFAULT_CONFIG:
+                    if key not in config:
+                        config[key] = DEFAULT_CONFIG[key]
+                return config
+    except Exception as e:
+        st.error(f"加载配置失败: {e}")
+    return DEFAULT_CONFIG.copy()
+
+# 保存配置函数
+def save_config(config):
+    try:
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        st.error(f"保存配置失败: {e}")
+        return False
+
+# 初始化配置
 if 'jira_config' not in st.session_state:
-    st.session_state.jira_config = {
-        'base_url': 'https://qima.atlassian.net',
-        'api_token': 'your_api_token_here',
-        'email': 'daisy.liu@qima.com',
-        'filter_id': '20334',
-        'field_id': ''
-    }
+    st.session_state.jira_config = load_config()
 
 # 配置更新函数
-def update_base_url():
-    st.session_state.jira_config['base_url'] = st.session_state.base_url_input
-
-def update_api_token():
-    st.session_state.jira_config['api_token'] = st.session_state.api_token_input
-
-def update_email():
-    st.session_state.jira_config['email'] = st.session_state.email_input
-
-def update_filter_id():
-    st.session_state.jira_config['filter_id'] = st.session_state.filter_id_input
-
-def update_field_id():
-    st.session_state.jira_config['field_id'] = st.session_state.field_id_input
-
-# 配置保存函数
-def save_config():
-    st.session_state.jira_config = {
+def update_config():
+    config = {
         'base_url': st.session_state.base_url_input,
         'api_token': st.session_state.api_token_input,
         'email': st.session_state.email_input,
         'filter_id': st.session_state.filter_id_input,
         'field_id': st.session_state.field_id_input
     }
-    st.success("✅ 配置已保存！刷新页面后配置将保持不变。")
+    st.session_state.jira_config = config
+    if save_config(config):
+        st.success("✅ 配置已保存到本地文件！刷新页面后配置将保持不变。")
+    else:
+        st.error("❌ 配置保存失败！")
 
 # 配置重置函数
 def reset_config():
-    st.session_state.jira_config = {
-        'base_url': 'https://qima.atlassian.net',
-        'api_token': 'your_api_token_here',
-        'email': 'daisy.liu@qima.com',
-        'filter_id': '20334',
-        'field_id': ''
-    }
-    st.success("🔄 配置已重置为默认值！")
+    st.session_state.jira_config = DEFAULT_CONFIG.copy()
+    if save_config(DEFAULT_CONFIG):
+        st.success("🔄 配置已重置为默认值！")
+    else:
+        st.error("❌ 配置重置失败！")
 
-# 强制更新输入框值
-def force_update_inputs():
-    st.session_state.base_url_input = st.session_state.jira_config['base_url']
-    st.session_state.api_token_input = st.session_state.jira_config['api_token']
-    st.session_state.email_input = st.session_state.jira_config['email']
-    st.session_state.filter_id_input = st.session_state.jira_config['filter_id']
-    st.session_state.field_id_input = st.session_state.jira_config['field_id']
+# 清除配置文件函数
+def clear_config_file():
+    try:
+        if os.path.exists(CONFIG_FILE):
+            os.remove(CONFIG_FILE)
+            st.session_state.jira_config = DEFAULT_CONFIG.copy()
+            st.success("🗑️ 配置文件已清除！")
+        else:
+            st.info("📭 没有找到配置文件")
+    except Exception as e:
+        st.error(f"清除配置文件失败: {e}")
 
 st.title("📊 Jira Affects Project 提取工具")
 st.markdown("输入你的配置并点击按钮，即可一键提取影响的项目列表并下载。")
@@ -69,15 +90,11 @@ st.markdown("输入你的配置并点击按钮，即可一键提取影响的项�
 with st.sidebar:
     st.header("⚙️ 配置设置")
     
-    # 强制更新输入框值
-    force_update_inputs()
-    
-    # 使用session state的值作为默认值，并确保key一致
+    # 使用session state的值作为默认值
     base_url = st.text_input(
         "🌐 Jira 实例 URL", 
         value=st.session_state.jira_config['base_url'],
-        key="base_url_input",
-        on_change=update_base_url
+        key="base_url_input"
     )
     
     api_token = st.text_area(
@@ -85,22 +102,19 @@ with st.sidebar:
         value=st.session_state.jira_config['api_token'],
         height=100, 
         help="从Atlassian账户设置中获取API Token",
-        key="api_token_input",
-        on_change=update_api_token
+        key="api_token_input"
     )
     
     email = st.text_input(
         "📧 Jira 邮箱", 
         value=st.session_state.jira_config['email'],
-        key="email_input",
-        on_change=update_email
+        key="email_input"
     )
     
     filter_id = st.text_input(
         "🔍 过滤器 ID", 
         value=st.session_state.jira_config['filter_id'],
-        key="filter_id_input",
-        on_change=update_filter_id
+        key="filter_id_input"
     )
     
     # 字段ID输入，支持自动检测和手动输入
@@ -109,8 +123,7 @@ with st.sidebar:
         "字段ID", 
         value=st.session_state.jira_config['field_id'],
         help="留空可自动检测，或手动输入",
-        key="field_id_input",
-        on_change=update_field_id
+        key="field_id_input"
     )
     
     # 配置管理按钮
@@ -119,11 +132,15 @@ with st.sidebar:
     
     with col1:
         if st.button("💾 保存配置", key="save_config", use_container_width=True):
-            save_config()
+            update_config()
     
     with col2:
         if st.button("🔄 重置配置", key="reset_config", use_container_width=True):
             reset_config()
+    
+    # 清除配置文件
+    if st.button("🗑️ 清除配置文件", key="clear_config", use_container_width=True):
+        clear_config_file()
     
     # 显示当前检测到的字段ID
     if 'detected_field_id' in st.session_state:
@@ -137,7 +154,7 @@ st.header("🚀 操作面板")
 # 步骤指示器
 st.markdown("""
 ### 📋 使用步骤：
-1. **🔧 配置信息** (左侧边栏) - 配置会自动保存
+1. **🔧 配置信息** (左侧边栏) - 配置会自动保存到本地文件
 2. **🔍 检测字段ID** (下方按钮)
 3. **🚀 提取数据** (检测成功后)
 """)
@@ -164,6 +181,7 @@ if auto_detect_button:
                     st.session_state.detected_field_id = detected_field_id
                     # 自动保存到配置中
                     st.session_state.jira_config['field_id'] = detected_field_id
+                    save_config(st.session_state.jira_config)
                     st.rerun()  # 刷新页面以更新UI
                 else:
                     st.warning("⚠️ 未自动识别字段 ID，请手动输入。")
@@ -288,13 +306,14 @@ with st.expander("📖 详细使用说明"):
     - **项目去重**: 自动去除重复项目
     - **列表展示**: 一行一个项目，方便复制
     - **一键复制**: 支持复制到剪贴板
-    - **配置持久化**: 刷新页面后配置保持不变
+    - **配置持久化**: 使用本地文件存储，刷新页面后配置保持不变
     
     ### 💾 配置管理：
-    - **自动保存**: 输入后配置自动保存到会话中
-    - **手动保存**: 点击"保存配置"按钮
+    - **本地存储**: 配置保存到本地JSON文件
+    - **自动保存**: 点击"保存配置"按钮保存到文件
     - **重置配置**: 点击"重置配置"恢复默认值
-    - **持久化**: 在同一会话中配置不会丢失
+    - **清除文件**: 点击"清除配置文件"删除本地配置
+    - **持久化**: 即使关闭浏览器，配置也不会丢失
     """)
 
 # 状态信息
@@ -306,9 +325,22 @@ if 'detected_field_id' in st.session_state:
 # 显示当前配置状态
 with st.expander("🔧 当前配置状态"):
     st.json(st.session_state.jira_config)
+    
+    # 显示配置文件状态
+    if os.path.exists(CONFIG_FILE):
+        st.success(f"✅ 配置文件存在: {CONFIG_FILE}")
+        try:
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                file_content = f.read()
+                st.text_area("📄 配置文件内容", value=file_content, height=100, disabled=True)
+        except Exception as e:
+            st.error(f"读取配置文件失败: {e}")
+    else:
+        st.warning("⚠️ 配置文件不存在，使用默认配置")
 
 # 添加配置恢复提示
 if st.session_state.jira_config['api_token'] != 'your_api_token_here':
-    st.sidebar.success("✅ 配置已加载")
+    st.sidebar.success("✅ 配置已从文件加载")
     if st.sidebar.button("🔄 重新加载配置", key="reload_config"):
+        st.session_state.jira_config = load_config()
         st.rerun()
