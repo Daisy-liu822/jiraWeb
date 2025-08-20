@@ -1,7 +1,9 @@
 {
   "project_mappings": {
     "aca": ["aca-cn"],
-    "public-api": ["public-api-job"]
+    "public-api": ["public-api-job"],
+    "cia": ["cia-cn"],
+    "final-report-service": ["final-report-service-replica"]
   },
   "description": "当检测到左侧项目时，自动添加右侧的关联项目到结果中",
   "version": "1.0.0",
