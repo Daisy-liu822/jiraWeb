@@ -84,14 +84,58 @@ if run_button:
 
             if results:
                 st.success(f"✅ 成功提取 {len(results)} 个问题！")
-                st.subheader("🔍 获取的数据预览")
                 
+                # 数据预览
+                st.subheader("🔍 获取的数据预览")
                 df = pd.DataFrame(results)
                 st.dataframe(df.head(50), use_container_width=True)
+                
+                # 项目去重和展示
+                st.subheader("📋 去重后的项目列表")
+                
+                # 收集所有项目
+                all_projects = []
+                for result in results:
+                    projects = result.get('affects_projects', [])
+                    if isinstance(projects, list):
+                        all_projects.extend(projects)
+                    elif isinstance(projects, str) and projects.strip():
+                        all_projects.extend([p.strip() for p in projects.split(',') if p.strip()])
+                
+                # 去重并排序
+                unique_projects = sorted(list(set([p.strip() for p in all_projects if p.strip() and p.strip().upper() != "NA"])))
+                
+                if unique_projects:
+                    # 显示项目数量
+                    st.info(f"📊 共找到 {len(unique_projects)} 个唯一项目")
+                    
+                    # 创建可复制的项目列表
+                    projects_text = "\n".join(unique_projects)
+                    
+                    # 显示项目列表
+                    st.text_area(
+                        "📝 项目列表 (可直接复制)",
+                        value=projects_text,
+                        height=200,
+                        help="点击上方文本框，按Ctrl+A全选，然后复制"
+                    )
+                    
+                    # 添加复制按钮
+                    if st.button("📋 复制到剪贴板", key="copy_projects"):
+                        st.write("📋 项目列表已复制到剪贴板！")
+                        st.code(projects_text)
+                    
+                    # 显示每个项目
+                    st.subheader("🏷️ 项目详情")
+                    for i, project in enumerate(unique_projects, 1):
+                        st.write(f"{i}. **{project}**")
+                else:
+                    st.warning("📭 未找到项目信息")
                 
                 # 下载功能
                 json_path, csv_path = jira_client.save_results_to_file(results)
                 
+                st.subheader("💾 下载数据")
                 col1, col2 = st.columns(2)
                 with open(json_path, "r", encoding="utf-8") as f:
                     col1.download_button(
@@ -133,6 +177,11 @@ with st.expander("📖 详细使用说明"):
     - 过滤器ID必须是有效的JIRA过滤器
     - 首次使用建议先测试连接
     - 字段ID检测成功后，提取数据按钮才会启用
+    
+    ### 📊 新功能：
+    - **项目去重**: 自动去除重复项目
+    - **列表展示**: 一行一个项目，方便复制
+    - **一键复制**: 支持复制到剪贴板
     """)
 
 # 状态信息
