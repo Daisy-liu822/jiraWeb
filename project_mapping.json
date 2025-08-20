@@ -1,0 +1,12 @@
+{
+  "project_mappings": {
+    "aca": ["aca-cn"],
+    "public-api": ["public-api-job"],
+    "back-office": ["back-office-job"],
+    "aims-web": ["aims-web-job"],
+    "lt-external-service": ["lt-external-service-job"]
+  },
+  "description": "当检测到左侧项目时，自动添加右侧的关联项目到结果中",
+  "version": "1.0.0",
+  "last_updated": "2024-08-20"
+} 

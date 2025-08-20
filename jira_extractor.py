@@ -2,40 +2,86 @@
 import requests
 import json
 import csv
-from typing import List, Dict, Optional
-from datetime import datetime
 import os
 import logging
+from datetime import datetime
+from typing import List, Dict, Optional
 
-logger = logging.getLogger("jira_extractor")
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class JiraExtractor:
-    def __init__(self, base_url: str, api_token: str, email: str = None):
-        self.base_url = base_url
+    def __init__(self, base_url: str, api_token: str, email: str):
+        self.base_url = base_url.rstrip('/')
         self.api_token = api_token
         self.email = email
         self.session = requests.Session()
+        self.session.auth = (email, api_token)
+        self.session.headers.update({
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        })
         
-        if email:
-            self.session.auth = (email, api_token)
-        else:
-            self.session.headers.update({
-                'Authorization': f'Bearer {api_token}',
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            })
+        # 加载项目映射配置
+        self.project_mappings = self._load_project_mappings()
 
-    def find_affects_project_field_id(self, filter_id) -> Optional[str]:
+    def _load_project_mappings(self) -> Dict[str, List[str]]:
+        """加载项目映射配置"""
         try:
-            search_url = f"{self.base_url}/rest/api/3/search"
-            params = {'jql': f'filter={filter_id}', 'fields': 'key', 'maxResults': 5}
-            response = self.session.get(search_url, params=params)
-            response.raise_for_status()
-            data = response.json()
+            mapping_file = "project_mapping.json"
+            if os.path.exists(mapping_file):
+                with open(mapping_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    return config.get('project_mappings', {})
+            else:
+                logger.warning(f"项目映射文件 {mapping_file} 不存在，使用默认映射")
+                return {
+                    "aca": ["aca-cn"],
+                    "public-api": ["public-api-job"]
+                }
+        except Exception as e:
+            logger.error(f"加载项目映射失败: {e}")
+            return {}
 
-            issues = data.get('issues', [])
+    def _apply_project_mappings(self, projects: List[str]) -> List[str]:
+        """应用项目映射，添加关联项目"""
+        if not self.project_mappings:
+            return projects
+        
+        expanded_projects = projects.copy()
+        
+        for project in projects:
+            project_lower = project.lower().strip()
+            
+            # 检查是否有映射规则
+            for source_project, target_projects in self.project_mappings.items():
+                if source_project.lower() in project_lower or project_lower in source_project.lower():
+                    # 添加关联项目
+                    for target_project in target_projects:
+                        if target_project not in expanded_projects:
+                            expanded_projects.append(target_project)
+                            logger.info(f"添加关联项目: {source_project} -> {target_project}")
+        
+        return expanded_projects
+
+    def find_affects_project_field_id(self, filter_id: str) -> Optional[str]:
+        """查找Affects Project字段ID"""
+        try:
+            url = f"{self.base_url}/rest/api/3/search"
+            params = {
+                'jql': f'filter={filter_id}',
+                'fields': 'summary,key',
+                'maxResults': 10,
+                'startAt': 0
+            }
+            
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            issues = response.json().get('issues', [])
+            
             if not issues:
-                logger.info("过滤器没有返回问题")
+                logger.warning("过滤器中没有找到问题")
                 return None
             
             potential_fields = []
@@ -95,6 +141,12 @@ class JiraExtractor:
             if custom_field_id:
                 affects_project_raw = fields.get(custom_field_id)
                 affects_projects_str, affects_projects = self._process_field_value(affects_project_raw)
+                
+                # 应用项目映射
+                if affects_projects:
+                    affects_projects = self._apply_project_mappings(affects_projects)
+                    # 重新生成字符串表示
+                    affects_projects_str = ", ".join(affects_projects)
 
             results.append({
                 'issue_key': issue_key,
@@ -151,3 +203,27 @@ class JiraExtractor:
                 writer.writerows(csv_data)
         
         return json_path, csv_path
+
+    def get_project_mappings(self) -> Dict[str, List[str]]:
+        """获取当前项目映射配置"""
+        return self.project_mappings.copy()
+
+    def update_project_mappings(self, new_mappings: Dict[str, List[str]]) -> bool:
+        """更新项目映射配置"""
+        try:
+            config = {
+                "project_mappings": new_mappings,
+                "description": "当检测到左侧项目时，自动添加右侧的关联项目到结果中",
+                "version": "1.0.0",
+                "last_updated": datetime.now().strftime("%Y-%m-%d")
+            }
+            
+            with open("project_mapping.json", "w", encoding="utf-8") as f:
+                json.dump(config, f, ensure_ascii=False, indent=2)
+            
+            # 更新内存中的配置
+            self.project_mappings = new_mappings
+            return True
+        except Exception as e:
+            logger.error(f"更新项目映射失败: {e}")
+            return False
