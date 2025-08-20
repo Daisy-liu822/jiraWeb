@@ -1,22 +1,21 @@
 # 部署说明
 
-## 🚀 Deta Space 部署 (最推荐 - 完全免费，无需信用卡)
+## 🌐 Vercel 部署 (推荐 - 有免费计划)
 
 ### 步骤：
-1. 访问 [Deta.space](https://deta.space)
+1. 访问 [Vercel.com](https://vercel.com)
 2. 使用GitHub账户登录
-3. 点击 "Create a new project"
-4. 选择 "Micro" 类型
-5. 连接你的GitHub仓库 `jiraWeb`
-6. 配置部署：
-   - **Name**: `jira-web-app`
-   - **Engine**: `Python 3.9`
-   - **Run Command**: `streamlit run web_app.py --server.port 8080 --server.address 0.0.0.0`
-7. 点击 "Deploy"
+3. 点击 "New Project"
+4. 导入你的GitHub仓库 `jiraWeb`
+5. 配置部署：
+   - **Framework Preset**: `Other`
+   - **Root Directory**: `./`
+   - **Build Command**: `pip install -r requirements-vercel.txt`
+   - **Output Directory**: `./`
+6. 点击 "Deploy"
 
 ### 优点：
-- ✅ **完全免费，无需信用卡**
-- ✅ **无使用限制**
+- ✅ **有免费计划**
 - ✅ **部署简单快速**
 - ✅ **支持Python应用**
 - ✅ **自动HTTPS**
@@ -73,7 +72,7 @@
 
 ---
 
-## 📱 本地部署 (完全免费)
+## 📱 本地部署 (完全免费，推荐)
 
 ### 步骤：
 1. 安装Python 3.9+
@@ -85,6 +84,15 @@
 - ✅ **完全免费**
 - ✅ **无限制**
 - ✅ **快速开发调试**
+- ✅ **无网络依赖**
+
+---
+
+## 🎯 推荐顺序
+
+1. **本地部署** - 开发和测试用（完全免费）
+2. **Vercel** - 在线部署（有免费计划）
+3. **其他平台** - 需要信用卡验证
 
 ---
 
@@ -99,8 +107,10 @@
 - 首次访问可能需要等待几秒钟启动
 - 确保你的JIRA API Token在部署后仍然有效
 
-## 🎯 推荐顺序
+## 💡 如果所有在线平台都需要信用卡
 
-1. **Deta Space** - 完全免费，无需信用卡
-2. **本地部署** - 开发和测试用
-3. **其他平台** - 需要信用卡验证 
+**本地部署是最佳选择**：
+- 完全免费
+- 无任何限制
+- 可以分享给局域网内的其他人
+- 适合开发和测试使用 
