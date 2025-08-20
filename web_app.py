@@ -45,7 +45,7 @@ st.markdown("输入你的配置并点击按钮，即可一键提取影响的项�
 with st.sidebar:
     st.header("⚙️ 配置设置")
     
-    # 使用session state的值作为默认值
+    # 使用session state的值作为默认值，并确保key一致
     base_url = st.text_input(
         "🌐 Jira 实例 URL", 
         value=st.session_state.jira_config['base_url'],
@@ -274,3 +274,9 @@ if 'detected_field_id' in st.session_state:
 # 显示当前配置状态
 with st.expander("🔧 当前配置状态"):
     st.json(st.session_state.jira_config)
+
+# 添加配置恢复提示
+if st.session_state.jira_config['api_token'] != 'your_api_token_here':
+    st.sidebar.success("✅ 配置已加载")
+    if st.sidebar.button("🔄 重新加载配置", key="reload_config"):
+        st.rerun()
