@@ -1,6 +1,31 @@
 # 部署说明
 
-## 🌐 Vercel 部署 (推荐 - 有免费计划)
+## 🚀 Streamlit Community Cloud 部署 (最推荐 - 完全免费，无需信用卡)
+
+### 步骤：
+1. 访问 [share.streamlit.io](https://share.streamlit.io)
+2. 使用GitHub账户登录
+3. 点击 "Authorize Streamlit Community Cloud"
+4. 选择你的GitHub账户并授权
+5. 点击 "New app"
+6. 配置部署：
+   - **Repository**: `Daisy-liu822/jiraWeb`
+   - **Branch**: `main`
+   - **Main file path**: `web_app.py`
+   - **Requirements file**: `requirements-streamlit.txt`
+   - **Python version**: `3.9`
+7. 点击 "Deploy"
+
+### 优点：
+- ✅ **完全免费，无需信用卡**
+- ✅ **专门为Streamlit优化**
+- ✅ **自动HTTPS和CDN**
+- ✅ **自动部署和更新**
+- ✅ **应用始终在线**
+
+---
+
+## 🌐 Vercel 部署 (有免费计划)
 
 ### 步骤：
 1. 访问 [Vercel.com](https://vercel.com)
@@ -90,9 +115,10 @@
 
 ## 🎯 推荐顺序
 
-1. **本地部署** - 开发和测试用（完全免费）
-2. **Vercel** - 在线部署（有免费计划）
-3. **其他平台** - 需要信用卡验证
+1. **Streamlit Community Cloud** - 完全免费，专门为Streamlit优化
+2. **本地部署** - 开发和测试用（完全免费）
+3. **Vercel** - 在线部署（有免费计划）
+4. **其他平台** - 需要信用卡验证
 
 ---
 
@@ -109,8 +135,8 @@
 
 ## 💡 如果所有在线平台都需要信用卡
 
-**本地部署是最佳选择**：
-- 完全免费
-- 无任何限制
-- 可以分享给局域网内的其他人
-- 适合开发和测试使用 
+**Streamlit Community Cloud是最佳选择**：
+- 完全免费，无需信用卡
+- 专门为Streamlit应用设计
+- 自动部署和更新
+- 应用始终在线 
