@@ -52,11 +52,12 @@ class JiraExtractor:
         expanded_projects = projects.copy()
         
         for project in projects:
-            project_lower = project.lower().strip()
+            project_clean = project.strip()
             
-            # 检查是否有映射规则
+            # 检查是否有精确映射规则（避免子字符串误匹配）
             for source_project, target_projects in self.project_mappings.items():
-                if source_project.lower() in project_lower or project_lower in source_project.lower():
+                # 精确匹配（大小写不敏感）
+                if source_project.lower() == project_clean.lower():
                     # 添加关联项目
                     for target_project in target_projects:
                         if target_project not in expanded_projects:
