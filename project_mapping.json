@@ -1,11 +1,18 @@
 {
   "project_mappings": {
     "aca": ["aca-cn"],
+    "ACA": ["aca-cn"],
+    "aca-new": ["aca-cn"],
     "public-api": ["public-api-job"],
+    "Public-API": ["public-api-job"],
     "cia": ["cia-cn"],
+    "CIA-NEW": ["cia-cn"],
     "final-report-service": ["final-report-service-replica"]
   },
-  "description": "当检测到左侧项目时，自动添加右侧的关联项目到结果中",
-  "version": "1.0.0",
-  "last_updated": "2024-08-20"
+  "description": "当检测到左侧项目时，自动添加右侧的关联项目到结果中。支持大小写变体和不同命名格式。",
+  "version": "1.1.0",
+  "last_updated": "2024-09-15",
+  "changelog": {
+    "1.1.0": "添加大小写匹配支持：ACA/aca, Public-API/public-api, CIA-NEW支持"
+  }
 } 
