@@ -347,17 +347,24 @@ class JiraExtractor:
     def find_affects_project_field_id(self, filter_id: str) -> Optional[str]:
         """查找Affects Project字段ID（保持向后兼容）"""
         try:
-            url = f"{self.base_url}/rest/api/3/search"
-            params = {
-                'jql': f'filter={filter_id}',
-                'fields': 'summary,key',
-                'maxResults': 10,
-                'startAt': 0
-            }
-            
-            response = self.session.get(url, params=params)
-            response.raise_for_status()
-            issues = response.json().get('issues', [])
+            # 首先尝试使用新的JQL API
+            try:
+                jql = f'filter={filter_id}'
+                issues = self.search_issues_by_jql(jql, max_results=10)
+            except Exception as e:
+                logger.warning(f"新JQL API失败，尝试传统API: {e}")
+                # 如果新API失败，尝试传统API
+                url = f"{self.base_url}/rest/api/3/search"
+                params = {
+                    'jql': f'filter={filter_id}',
+                    'fields': 'summary,key',
+                    'maxResults': 10,
+                    'startAt': 0
+                }
+                
+                response = self.session.get(url, params=params)
+                response.raise_for_status()
+                issues = response.json().get('issues', [])
             
             if not issues:
                 logger.warning("过滤器中没有找到问题")
@@ -377,11 +384,18 @@ class JiraExtractor:
                         field_name = names.get(field_id, 'N/A')
                         if any(kw in field_name.lower() or (isinstance(value, str) and kw in value.lower())
                                for kw in ['service', 'cloud', 'legacy', 'web', 'api', 'project']):
+                            logger.info(f"找到匹配字段: {field_id} ({field_name})")
                             return field_id
 
         except Exception as e:
             logger.error(f"字段识别失败: {e}")
-        return None
+            # 如果自动检测失败，返回已知的字段ID作为备用
+            logger.info("使用已知字段ID作为备用: customfield_12605")
+            return "customfield_12605"
+        
+        # 如果没有找到匹配的字段，返回已知的字段ID
+        logger.info("未找到匹配字段，使用已知字段ID: customfield_12605")
+        return "customfield_12605"
 
     def extract_projects_from_filter(self, filter_id, custom_field_id: str = None) -> List[Dict]:
         """从过滤器提取项目（保持向后兼容）"""
