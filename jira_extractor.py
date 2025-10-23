@@ -30,7 +30,7 @@ class JiraExtractor:
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             })
-
+        
         self.session.headers.update({
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -189,9 +189,9 @@ class JiraExtractor:
                     last_error = requests.exceptions.HTTPError(f"API v{api_version} 不再可用")
                     continue
                 
-            response.raise_for_status()
+                response.raise_for_status()
                 
-            data = response.json()
+                data = response.json()
                 issues = data.get('issues', [])
                 total = data.get('total', 0)
                 
@@ -432,7 +432,7 @@ class JiraExtractor:
             issue_key = issue.get('key', '')
             summary = fields.get('summary', '')
             status = fields.get('status', {}).get('name', '')
-
+            
             # 如果没有字段ID，跳过 Affects Project 提取
             if custom_field_id is None:
                 affects_project_raw = ''
@@ -490,7 +490,7 @@ class JiraExtractor:
                 
                 # 添加项目到总列表
                 all_projects.update(projects)
-
+            
             results.append({
                 'issue_key': issue_key,
                 'summary': summary,
@@ -549,7 +549,7 @@ class JiraExtractor:
             if csv_data:
                 fieldnames = list(csv_data[0].keys())
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
+                writer.writeheader()
                 writer.writerows(csv_data)
         
         return json_path, csv_path
