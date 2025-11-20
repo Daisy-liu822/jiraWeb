@@ -367,8 +367,8 @@ class JiraExtractor:
                 issues = response.json().get('issues', [])
             
             if not issues:
-                logger.warning("过滤器中没有找到问题")
-                return None
+                logger.warning("过滤器中没有找到问题，使用已知字段ID作为备用")
+                return "customfield_12605"
             
             potential_fields = []
 

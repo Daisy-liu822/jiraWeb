@@ -244,7 +244,12 @@ with tab1:
                         save_config(st.session_state.jira_config)
                         st.rerun()  # 刷新页面以更新UI
                     else:
-                        st.warning("⚠️ 未自动识别字段 ID，请手动输入。")
+                        st.warning("⚠️ 未自动识别字段 ID，使用备用字段ID: customfield_12605")
+                        # 使用备用字段ID
+                        st.session_state.detected_field_id = "customfield_12605"
+                        st.session_state.jira_config['field_id'] = "customfield_12605"
+                        save_config(st.session_state.jira_config)
+                        st.rerun()
             except Exception as e:
                 st.error(f"❌ 检测失败: {str(e)}")
                 st.info("💡 提示：请检查API Token、邮箱和过滤器ID是否正确")
