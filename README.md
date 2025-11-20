@@ -50,12 +50,18 @@
 
 ## 🚀 快速开始
 
+### 在线使用（推荐）⭐
+
+**直接访问线上应用：** 👉 **https://webtools.streamlit.app/**
+
+无需安装，直接使用！
+
 ### 本地运行
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/Daisy-liu822/jiraWeb.git
-cd jiraWeb
+git clone https://github.com/Daisy-liu822/webtools.git
+cd webtools
 ```
 
 2. **安装依赖**
@@ -75,16 +81,18 @@ streamlit run app.py
    - 主页提供清晰的功能导航
    - 可通过侧边栏快速切换页面
 
-### 在线部署
+### 在线访问
 
-推荐使用 **Streamlit Community Cloud** 进行免费部署：
+**🌐 已部署应用：** https://webtools.streamlit.app/
 
-1. 访问 [Streamlit Cloud](https://streamlit.io/cloud)
-2. 使用 GitHub 账号登录
-3. 点击 "New app"
-4. 选择 `Daisy-liu822/jiraWeb` 仓库
-5. 设置应用路径为 `web_app.py`
-6. 点击 "Deploy!"
+**功能访问：**
+- 📊 Jira 工具：直接从主页点击进入或通过侧边栏选择
+- 🐳 ArgoCD 工具：直接从主页点击进入或通过侧边栏选择
+
+**部署信息：**
+- 平台：Streamlit Community Cloud
+- 自动更新：代码推送后自动部署
+- 全球访问：支持全球用户访问
 
 ## 📖 使用指南
 
@@ -127,12 +135,25 @@ streamlit run app.py
 6. **查看对比分析**: 高亮显示与上次查询的差异
 7. 导出数据为 JSON 或 CSV 格式
 
-#### 部署对比功能 ⭐
+#### 部署对比功能 ⭐ NEW
+
+**使用方法：**
+1. 第一次查询后，结果会自动保存
+2. 第二次查询时，自动与上次结果对比
+3. 查看颜色高亮和统计变化
+
+**对比展示：**
 - 🟢 **绿色高亮** - 新增的服务
-- 🟡 **黄色高亮** - 版本已更新的服务（显示前后版本）
+- 🟡 **黄色高亮** - 版本已更新的服务（显示前后版本对比）
 - 🔴 **红色高亮** - 已移除的服务
 - 📊 **统计面板** - 显示新增/更新/不变/移除数量
-- 💡 **智能提示** - 首次查询后，再次查询自动对比
+- 💡 **智能提示** - 首次查询后提示，再次查询自动对比
+
+**应用场景：**
+- 验证部署是否成功
+- 追踪版本更新
+- 发现意外变化
+- 审计部署记录
 
 ### 🔐 API Token 安全特性
 
@@ -353,11 +374,19 @@ A: 完全安全！Token 永远不会被显示，即使在共享屏幕时也绝�
 
 感谢 Streamlit 团队提供的优秀框架，以及 Atlassian 的 Jira API 支持。
 
+## 📞 支持
+
+- 📧 Email: daisy.liu@qima.com
+- 💬 内部协作平台
+- 🐛 [GitHub Issues](https://github.com/Daisy-liu822/webtools/issues)
+- 🌐 在线访问: https://webtools.streamlit.app
+
 ---
 
 **最后更新**: 2025-11-20  
 **版本**: 2.0.0  
-**维护者**: Daisy Liu
+**维护者**: Daisy Liu  
+**仓库**: https://github.com/Daisy-liu822/webtools
 
 ---
 

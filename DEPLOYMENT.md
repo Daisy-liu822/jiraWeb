@@ -33,10 +33,10 @@ Streamlit Community Cloud是Streamlit官方提供的免费部署平台，专门�
 ### 3. 部署应用
 - 点击 "New app"
 - 配置部署信息：
-  - **Repository**: `Daisy-liu822/jiraWeb`
+  - **Repository**: `Daisy-liu822/webtools`
   - **Branch**: `main`
-  - **Main file path**: `app.py`  ← 新主入口
-  - **App URL**: 可以自定义或使用默认
+  - **Main file path**: `app.py`  ← 主入口
+  - **App URL**: `webtools` ← 自定义子域名
   - **Advanced settings**:
     - **Requirements file**: `requirements.txt`
     - **Python version**: `3.9`
@@ -72,9 +72,10 @@ jira-web-app/
 ## 🌐 部署后
 
 ### 访问应用
-- 部署完成后会获得类似 `https://your-app-name.streamlit.app` 的URL
+- 部署完成后的 URL: **https://webtools.streamlit.app**
 - 主页会显示两个工具的入口卡片
 - 使用侧边栏可以快速切换不同工具
+- 建议将 URL 添加到书签方便访问
 
 ### 自动更新
 - 每次推送到GitHub的main分支
@@ -116,4 +117,5 @@ A: 免费计划不支持自定义域名，但可以自定义应用名称
 如果遇到问题，可以：
 - 查看 [Streamlit文档](https://docs.streamlit.io)
 - 访问 [Streamlit论坛](https://discuss.streamlit.io)
-- 提交 [GitHub Issue](https://github.com/streamlit/streamlit) 
+- 提交 [GitHub Issue](https://github.com/Daisy-liu822/webtools/issues)
+- 联系维护者: daisy.liu@qima.com 
