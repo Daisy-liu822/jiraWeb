@@ -140,29 +140,19 @@ if 'comparison_data' not in st.session_state:
 st.title("🐳 ArgoCD 镜像查询工具")
 st.markdown("查询和追踪 ArgoCD 应用部署的容器镜像版本")
 
-# 检测是否在 Streamlit Cloud 环境
-import socket
-is_cloud = os.getenv('STREAMLIT_SHARING_MODE') or 'streamlit.app' in socket.gethostname()
+# 网络限制提示
+st.info("""
+💡 **使用提示**
 
-if is_cloud:
-    st.warning("""
-    ⚠️ **网络限制提示**
-    
-    ArgoCD 服务器位于公司内网，Streamlit Cloud 无法直接访问。
-    
-    **解决方案：**
-    - 🏠 **推荐**：在本地运行此工具（`streamlit run app.py`）
-    - 🔧 联系 IT 管理员将 Streamlit Cloud IP 加入白名单
-    - 🔐 使用公司 VPN 代理（需要企业版 Streamlit）
-    
-    **本地运行步骤：**
-    ```bash
-    git clone https://github.com/Daisy-liu822/webtools.git
-    cd webtools
-    pip install -r requirements.txt
-    streamlit run app.py
-    ```
-    """)
+ArgoCD 服务器位于公司内网。如果在线版本无法访问，请使用本地版本。
+
+**本地运行方法：**
+- 🖱️ **Windows 用户**：双击项目中的 `启动ArgoCD工具.bat` 文件
+- 💻 **命令行运行**：`streamlit run app.py`
+- 📥 **首次使用**：需要先 `git clone` 并安装依赖
+
+本地版本无网络限制，所有功能完全可用。
+""")
 
 st.markdown("---")
 
