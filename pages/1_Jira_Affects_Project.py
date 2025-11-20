@@ -1,14 +1,19 @@
-# web_app.py
+# Jira Affects Project 提取工具
 import streamlit as st
 import os
 import pandas as pd
 import json
-from jira_extractor import JiraExtractor
+import sys
+
+# 添加项目根目录到路径
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from modules.jira_extractor import JiraExtractor
 
 st.set_page_config(page_title="Jira Affects Project 提取工具", layout="wide")
 
 # 配置文件路径
-CONFIG_FILE = "jira_config.json"
+CONFIG_FILE = "config/jira_config.json"
 
 # 默认配置
 DEFAULT_CONFIG = {
@@ -86,8 +91,8 @@ def clear_config_file():
 # 项目映射管理函数
 def load_project_mappings():
     try:
-        if os.path.exists("project_mapping.json"):
-            with open("project_mapping.json", 'r', encoding='utf-8') as f:
+        if os.path.exists("config/project_mapping.json"):
+            with open("config/project_mapping.json", 'r', encoding='utf-8') as f:
                 config = json.load(f)
                 return config.get('project_mappings', {})
     except Exception as e:
@@ -103,7 +108,7 @@ def save_project_mappings(mappings):
             "last_updated": pd.Timestamp.now().strftime("%Y-%m-%d")
         }
         
-        with open("project_mapping.json", "w", encoding="utf-8") as f:
+        with open("config/project_mapping.json", "w", encoding="utf-8") as f:
             json.dump(config, f, ensure_ascii=False, indent=2)
         return True
     except Exception as e:
@@ -540,9 +545,9 @@ with tab2:
     
     # 显示配置文件
     with st.expander("📄 项目映射配置文件"):
-        if os.path.exists("project_mapping.json"):
+        if os.path.exists("config/project_mapping.json"):
             try:
-                with open("project_mapping.json", 'r', encoding='utf-8') as f:
+                with open("config/project_mapping.json", 'r', encoding='utf-8') as f:
                     file_content = f.read()
                     st.text_area("配置文件内容", value=file_content, height=200, disabled=True)
             except Exception as e:

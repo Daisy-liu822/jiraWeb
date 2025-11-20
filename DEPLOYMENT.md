@@ -1,5 +1,11 @@
 # 🚀 Streamlit Community Cloud 部署指南
 
+## 项目概述
+
+本项目是一个基于 Streamlit 的 DevOps 工具集，采用多页面架构，包含：
+- 📊 Jira Affects Project 分析工具
+- 🐳 ArgoCD 镜像查询工具
+
 ## 什么是Streamlit Community Cloud？
 
 Streamlit Community Cloud是Streamlit官方提供的免费部署平台，专门为Streamlit应用设计，无需信用卡验证。
@@ -29,7 +35,7 @@ Streamlit Community Cloud是Streamlit官方提供的免费部署平台，专门�
 - 配置部署信息：
   - **Repository**: `Daisy-liu822/jiraWeb`
   - **Branch**: `main`
-  - **Main file path**: `web_app.py`
+  - **Main file path**: `app.py`  ← 新主入口
   - **App URL**: 可以自定义或使用默认
   - **Advanced settings**:
     - **Requirements file**: `requirements.txt`
@@ -44,16 +50,22 @@ Streamlit Community Cloud是Streamlit官方提供的免费部署平台，专门�
 ### 文件结构
 ```
 jira-web-app/
-├── web_app.py              # 主应用文件
-├── jira_extractor.py       # JIRA提取逻辑
-├── requirements.txt         # 依赖文件
+├── app.py                      # 主应用入口 ⭐
+├── pages/                      # 多页面目录
+│   ├── 1_Jira_Affects_Project.py
+│   └── 2_🐳_ArgoCD_Images.py
+├── modules/                    # 功能模块
+│   ├── jira_extractor.py
+│   └── argocd_client.py
+├── config/                     # 配置目录
+├── requirements.txt            # 依赖文件
 ├── .streamlit/
-│   └── config.toml        # Streamlit配置
-└── README.md              # 项目说明
+│   └── config.toml            # Streamlit配置
+└── README.md                   # 项目说明
 ```
 
 ### 关键配置
-- **主文件**: `web_app.py`
+- **主文件**: `app.py` (新的 Landing Page)
 - **依赖文件**: `requirements.txt`
 - **Python版本**: 3.9
 
@@ -61,7 +73,8 @@ jira-web-app/
 
 ### 访问应用
 - 部署完成后会获得类似 `https://your-app-name.streamlit.app` 的URL
-- 可以直接分享给其他人使用
+- 主页会显示两个工具的入口卡片
+- 使用侧边栏可以快速切换不同工具
 
 ### 自动更新
 - 每次推送到GitHub的main分支

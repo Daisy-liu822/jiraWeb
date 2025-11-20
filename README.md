@@ -1,10 +1,20 @@
-# 🚀 Jira Affects Project 提取工具
+# 🛠️ DevOps 工具集
 
-一个基于 Streamlit 的 Jira 项目影响分析工具，帮助团队快速识别和导出问题影响的项目列表。
+一个基于 Streamlit 的 DevOps 自动化工具平台，集成了 Jira 分析和 ArgoCD 镜像查询功能，帮助团队提升工作效率。
+
+## 🎯 工具列表
+
+### 📊 Jira Affects Project 分析工具
+快速识别和导出 Jira 问题影响的项目列表，支持项目映射和智能去重。
+
+### 🐳 ArgoCD 镜像查询工具 ⭐ NEW
+查询和追踪 ArgoCD 应用部署的容器镜像版本，支持多环境对比和历史分析。
+
+---
 
 ## ✨ 主要功能
 
-### 🔍 核心功能
+### 📊 Jira 工具功能
 - **智能字段检测**: 自动识别 Jira 中的 "Affects Project" 字段
 - **批量数据提取**: 从指定过滤器中批量提取问题数据
 - **项目去重**: 自动去除重复项目，生成唯一项目列表
@@ -28,6 +38,16 @@
 - **持久化**: 即使关闭浏览器，配置也不会丢失
 - **一键重置**: 支持快速恢复默认配置
 
+### 🐳 ArgoCD 工具功能
+- **多环境支持**: 支持 preprod、staging、prod 环境切换
+- **批量服务查询**: 一次查询多个服务的镜像版本
+- **Token 智能验证**: 自动检测 JWT Token 有效性和过期时间
+- **部署对比分析**: 自动对比上次查询结果，高亮显示变化 ⭐ NEW
+- **智能高亮**: 新增🟢 / 更新🟡 / 移除🔴 服务一目了然
+- **CLI Token 自动加载**: 支持从 ArgoCD CLI 配置自动读取 Token
+- **数据可视化**: 清晰的表格展示查询结果
+- **多格式导出**: 支持 JSON 和 CSV 格式下载
+
 ## 🚀 快速开始
 
 ### 本地运行
@@ -45,11 +65,15 @@ pip install -r requirements.txt
 
 3. **运行应用**
 ```bash
-streamlit run web_app.py
+streamlit run app.py
 ```
 
 4. **访问应用**
 打开浏览器访问 `http://localhost:8501`
+
+5. **选择工具**
+   - 主页提供清晰的功能导航
+   - 可通过侧边栏快速切换页面
 
 ### 在线部署
 
@@ -64,7 +88,9 @@ streamlit run web_app.py
 
 ## 📖 使用指南
 
-### 🔧 配置设置
+### 🔧 Jira 工具使用
+
+#### 配置设置
 
 1. **获取 API Token**
    - 访问 [Atlassian 账户设置](https://id.atlassian.com/manage-profile/security/api-tokens)
@@ -79,6 +105,34 @@ streamlit run web_app.py
 3. **自动检测字段 ID**
    - 点击 "🔍 自动检测字段 ID" 按钮
    - 系统会自动识别 "Affects Project" 字段
+
+### 🐳 ArgoCD 工具使用
+
+#### 获取 ArgoCD Token
+1. 登录 ArgoCD Web 界面
+2. 点击右上角用户头像 → Settings
+3. 选择 Tokens 标签
+4. 点击 Generate New 创建新 token
+5. 复制生成的 token（不包含 Bearer 前缀）
+
+#### 使用步骤
+1. 从主页选择 "ArgoCD 镜像查询"
+2. 选择目标环境（preprod/staging/prod）
+3. 配置 Token（支持三种方式）:
+   - **推荐**: 在 ArgoCD UI Settings → Tokens 创建专用 Token
+   - **自动**: 从 ArgoCD CLI 配置自动加载（如果已配置）
+   - **手动**: 从浏览器开发者工具提取 session token
+4. 选择要查询的服务列表
+5. 点击 "开始查询" 并查看结果
+6. **查看对比分析**: 高亮显示与上次查询的差异
+7. 导出数据为 JSON 或 CSV 格式
+
+#### 部署对比功能 ⭐
+- 🟢 **绿色高亮** - 新增的服务
+- 🟡 **黄色高亮** - 版本已更新的服务（显示前后版本）
+- 🔴 **红色高亮** - 已移除的服务
+- 📊 **统计面板** - 显示新增/更新/不变/移除数量
+- 💡 **智能提示** - 首次查询后，再次查询自动对比
 
 ### 🔐 API Token 安全特性
 
@@ -143,25 +197,39 @@ streamlit run web_app.py
 
 ```
 jira-web-app/
-├── web_app.py              # 主应用文件 (Streamlit)
-├── jira_extractor.py       # Jira API 交互核心
-├── project_mapping.json    # 项目映射配置文件
-├── requirements.txt        # Python 依赖
-├── .streamlit/            # Streamlit 配置
-│   └── config.toml       # 应用配置
-├── results/               # 导出结果目录
-└── README.md             # 项目文档
+├── app.py                      # 主入口（Landing Page）
+├── pages/                      # Streamlit 多页面
+│   ├── 1_Jira_Affects_Project.py
+│   └── 2_🐳_ArgoCD_Images.py
+├── modules/                    # 功能模块
+│   ├── jira_extractor.py       # Jira API 交互
+│   └── argocd_client.py        # ArgoCD API 交互
+├── config/                     # 配置文件
+│   ├── jira_config.json
+│   ├── argocd_config.json
+│   └── project_mapping.json
+├── argoCDFromAPI/              # 原始 ArgoCD 脚本
+├── requirements.txt            # Python 依赖
+├── .streamlit/                 # Streamlit 配置
+│   └── config.toml
+└── README.md                   # 项目文档
 ```
 
 ## 🔧 技术架构
 
 ### 核心组件
-- **Streamlit**: Web 应用框架
-- **Jira REST API v3**: 数据获取接口（支持增强JQL API）
-- **传统API备用**: 自动降级机制，确保兼容性
+- **Streamlit**: Web 应用框架（多页面架构）
+- **Jira REST API v3**: Jira 数据获取（支持增强 JQL API）
+- **ArgoCD REST API**: 容器镜像信息查询
 - **Pandas**: 数据处理和分析
-- **JSON/CSV**: 数据导出格式
-- **ADF解析**: Atlassian Document Format支持
+- **PyYAML**: YAML 配置解析
+- **Requests**: HTTP 请求处理
+
+### 应用架构
+- **多页面设计**: 使用 Streamlit Pages 实现模块化
+- **模块化代码**: 功能模块独立，易于维护
+- **配置分离**: 各工具独立配置管理
+- **会话状态**: 使用 session_state 管理应用状态
 
 ### 配置管理
 - **本地文件存储**: `jira_config.json` 存储用户配置
@@ -195,6 +263,8 @@ jira-web-app/
 streamlit>=1.32.0      # Web 应用框架
 requests>=2.31.0       # HTTP 请求库
 pandas>=2.2.0          # 数据处理库
+pyyaml>=6.0           # YAML 解析库
+urllib3>=2.0.0        # URL 处理库
 ```
 
 ## 🌐 在线部署
@@ -285,15 +355,39 @@ A: 完全安全！Token 永远不会被显示，即使在共享屏幕时也绝�
 
 ---
 
-**最后更新**: 2025-10-23  
-**版本**: 2.3.0  
+**最后更新**: 2025-11-20  
+**版本**: 2.0.0  
 **维护者**: Daisy Liu
 
 ---
 
 ## 📋 更新日志
 
-### v2.3.0 (2025-10-23) - 重大更新
+### v2.0.0 (2025-11-20) - 重大架构升级 🎉
+
+#### 🎉 新增功能
+- ✅ **ArgoCD 镜像查询工具**: 查询容器镜像版本，支持多环境
+- ✅ **部署对比分析**: 自动对比上次结果，智能高亮显示变化（🟢🟡🔴）
+- ✅ **多页面架构**: 采用 Streamlit Pages 实现模块化设计
+- ✅ **统一入口**: Landing Page 提供清晰的功能导航
+- ✅ **JWT Token 验证**: 自动检测 Token 有效性和过期时间
+- ✅ **CLI Token 集成**: 支持从 ArgoCD CLI 配置自动加载 Token
+
+#### 🔧 架构优化
+- ✅ 模块化代码重构，提升可维护性
+- ✅ 配置文件独立管理（config/ 目录）
+- ✅ 统一的错误处理机制
+- ✅ 优化的用户界面设计
+- ✅ 智能结果对比和可视化
+
+#### 📚 文档完善
+- ✅ 完整的使用说明
+- ✅ 简化的文档结构
+- ✅ 发布清单和测试指南
+
+---
+
+### v1.x (历史版本)
 - 🐛 **重要修复**: 修复NA项目错误触发final-report-service-replica的映射bug
 - 🎯 **精确匹配**: 改进映射逻辑，使用精确匹配避免子字符串误触发
 - 🔄 **映射优化**: 支持大小写变体（ACA/aca, Public-API/public-api, CIA-NEW等）
