@@ -39,6 +39,13 @@
 - **一键重置**: 支持快速恢复默认配置
 
 ### 🐳 ArgoCD 工具功能
+
+**⚠️ 网络访问说明：**
+- ArgoCD 服务器位于公司内网
+- 在线版本因网络限制无法访问 ArgoCD
+- **推荐本地运行**使用 ArgoCD 功能
+
+**功能特性：**
 - **多环境支持**: 支持 preprod、staging、prod 环境切换
 - **批量服务查询**: 一次查询多个服务的镜像版本
 - **Token 智能验证**: 自动检测 JWT Token 有效性和过期时间
@@ -86,8 +93,13 @@ streamlit run app.py
 **🌐 已部署应用：** https://webtools.streamlit.app/
 
 **功能访问：**
-- 📊 Jira 工具：直接从主页点击进入或通过侧边栏选择
-- 🐳 ArgoCD 工具：直接从主页点击进入或通过侧边栏选择
+- ✅ **Jira 工具**：完全可用，直接从主页点击进入
+- ⚠️ **ArgoCD 工具**：因网络限制，推荐本地运行使用
+
+**网络限制说明：**
+- ArgoCD 服务器位于公司内网，仅允许内网访问
+- Streamlit Cloud 从外网访问会被防火墙阻止
+- **解决方案**：本地运行 `streamlit run app.py`
 
 **部署信息：**
 - 平台：Streamlit Community Cloud
