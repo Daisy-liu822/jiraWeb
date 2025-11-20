@@ -147,6 +147,8 @@ st.info("""
 ArgoCD 服务器位于公司内网。如果在线版本无法访问，请使用本地版本。
 
 **本地运行方法：**
+
+- ☑️ **仓库地址**: https://github.com/Daisy-liu822/webtools.git
 - 🖱️ **Windows 用户**：双击项目中的 `启动ArgoCD工具.bat` 文件
 - 💻 **命令行运行**：`streamlit run app.py`
 - 📥 **首次使用**：需要先 `git clone` 并安装依赖
